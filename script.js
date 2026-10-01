@@ -240,3 +240,74 @@ if(previewMoments[previewMode]){
   sky.querySelector('.star-message').textContent=nightLetter;
  }else if(previewMode==='anniversary'||previewMode==='january10')room.showModal();
 }
+
+/* Seasonal secrets have their own rooms, not just different text. */
+const seasonalCSS=document.createElement('style');
+seasonalCSS.textContent=`
+.seasonal{width:min(650px,calc(100% - 28px));padding:40px 30px;text-align:center;max-height:88dvh}
+.seasonal h2{font-size:clamp(34px,7vw,54px);line-height:1.15}.seasonal p{line-height:1.85}
+.bedtime{background:radial-gradient(ellipse at 80% 0,#544272,#17172f 70%);color:#eee9ff;border-color:#796893}
+.bedtime::backdrop{background:#101023d9}.bedtime .close{color:#d7c8ef}.bedtime .section-label{color:#bba9d8}
+.bedtime em{color:#dcc1ff}.bedtime .moon{font-size:65px;margin:12px 0}.bedtime .night-intro{color:#c6bedb}
+.bedtime .night-letter{background:#ffffff08;border:1px solid #ffffff15;border-radius:24px;padding:22px;text-align:left;color:#dbd4ea}
+.bedtime .primary{background:#d8c5f1;color:#30233f;box-shadow:0 8px 32px #d3b5ff15}
+.bedtime .rest-note{font-family:'Give You Glory',cursive;font-size:26px;color:#d9c2ef}
+.month-party{background:#fff4fa;color:#683b63;border:1px solid #e7bfd8}
+.month-party::backdrop{background:#543047a8}.month-party .section-label{color:#a65a87}.month-party em{color:#a04a82}
+.party-ribbon{display:inline-block;background:#edd9f0;border:1px solid #d8b6de;padding:8px 20px;border-radius:30px;font-size:13px;letter-spacing:.12em}
+.party-symbol{font-size:58px;margin:18px 0}.party-card{background:white;border:1px solid #edd6e4;border-radius:18px;padding:24px;box-shadow:5px 6px 0 #f0dfeb;text-align:left;transform:rotate(-1deg);margin:25px 0}
+.party-card h3{font-size:28px;margin:0;color:#8d477a}.party-card p{color:#926280}.party-wish{background:#eee0f7;border-radius:16px;padding:20px;margin-top:22px;font-size:18px;color:#70437d}
+.month-party .primary{background:#9d5186}.month-party .handwritten{font-size:26px;color:#a15e8e}
+.our-book{background:#fcf4e9;color:#583c53;border:1px solid #d8b8bd;padding:0}
+.our-book::backdrop{background:#38202cae}.our-book .close{z-index:1;color:#704057}
+.book-cover{background:#765078;color:#fff3ef;padding:45px 28px;border-bottom:5px solid #d6b9cc}
+.book-cover .section-label{color:#edd3e7}.book-cover em{color:#f3cbdc}
+.book-date{font-family:'DM Serif Display',Georgia,serif;font-size:75px;line-height:1;margin:24px 0 8px}
+.book-cover .book-month{letter-spacing:.25em;font-size:13px;margin:0}.book-cover h2{font-size:36px}
+.book-pages{padding:30px;text-align:left}.book-page-number{font-size:12px;letter-spacing:.15em;color:#a57b90}
+.book-pages h3{font-size:30px;color:#784e70;margin:16px 0}.book-pages p{font-size:16px;color:#856b7d}
+.book-line{height:1px;background:#dfcbd5;margin:25px 0}.book-pages .primary{display:flex;margin:25px auto 0;background:#765078}
+.book-ending{font-family:'Give You Glory',cursive;text-align:center;font-size:28px!important;color:#815379!important}
+@media(max-width:600px){.seasonal{padding:35px 22px}.our-book{padding:0}.book-pages{padding:25px 22px}.party-card{padding:20px}}
+`;
+document.head.append(seasonalCSS);
+const bedtime=secretDialog('seasonal bedtime',`
+ <div class="moon" aria-hidden="true">☾</div>
+ <p class="section-label">A SOFT PLACE TO END YOUR DAY</p>
+ <h2>Udah malam,<br><em>sayang.</em></h2>
+ <p class="night-intro">Nggak usah buru-buru. Di sini, kamu boleh istirahat.</p>
+ <div class="night-letter"><p>Sinta, terima kasih sudah melewati hari ini.</p><p>Kalau hari ini rasanya berat, taruh dulu sebentar. Kamu nggak harus menyelesaikan semuanya malam ini. Kamu juga nggak perlu selalu kuat untuk layak disayang.</p><p>Semoga tidurmu tenang, mimpimu manis, dan besok terasa sedikit lebih ringan. Aku titip satu peluk sebelum kamu merem, ya 💜</p></div>
+ <p class="rest-note">Rest your little heart. I'm here. ♡</p>
+ <button class="primary night-tuck">Selimutin aku <span>♡</span></button>
+ <p class="night-goodnight" aria-live="polite" hidden></p>`);
+bedtime.setAttribute('aria-label','Surat sebelum tidur untuk Sinta');
+bedtime.querySelector('.night-tuck').onclick=()=>{bedtime.querySelector('.night-tuck').hidden=true;const p=bedtime.querySelector('.night-goodnight');p.hidden=false;p.textContent='Selimutnya sudah ditarik. Peluknya sudah dititipkan. Selamat tidur, kesayanganku 🫂💜';burst(innerWidth/2,innerHeight*.7,12)};
+const monthly=secretDialog('seasonal month-party',`
+ <div class="party-ribbon">THE TENTH · OUR MINI CELEBRATION</div>
+ <div class="party-symbol" aria-hidden="true">🎀</div>
+ <h2>Happy tanggal 10,<br><em>kesayanganku!</em></h2>
+ <p>Hari kecil kita datang lagi.<br>Aku siapin perayaan mungil buat kamu.</p>
+ <div class="party-card"><h3>Satu tanggal. Banyak rasa.</h3><p>Aku senang punya kamu buat berbagi cerita, ketawa karena hal random, dan menikmati hari-hari kecil yang mungkin biasa buat orang lain.</p><p>Hari ini aku cuma mau bilang: dari semua hal yang berubah, aku masih pengin memilih kamu. Lagi dan lagi. 💜</p></div>
+ <button class="primary party-open">Buka hadiah kecilnya <span>♡</span></button>
+ <div class="party-wish" hidden><strong>Hadiahmu: satu ajakan sederhana 🥺</strong><p>Yuk, sisihin waktu buat kita. Nggak harus mewah. Cerita panjang, ketawa bareng, dan saling dengerin juga sudah bikin aku senang.</p><p class="handwritten">My favorite little tradition is us. ♡</p></div>`);
+monthly.setAttribute('aria-label','Perayaan bulanan tanggal sepuluh');
+monthly.querySelector('.party-open').onclick=()=>{monthly.querySelector('.party-open').hidden=true;monthly.querySelector('.party-wish').hidden=false;burst(innerWidth/2,innerHeight*.65,45)};
+const annual=secretDialog('seasonal our-book',`
+ <div class="book-cover"><p class="section-label">A LITTLE BOOK ABOUT US</p><div class="book-date">10</div><p class="book-month">JANUARI</p><h2>Hari kita.<br><em>Awal cerita favoritku.</em></h2><p>For Sinta Rahmawati, with love.</p></div>
+ <div class="book-pages"><div class="book-page-number"></div><h3 class="book-chapter"></h3><p class="book-story"></p><div class="book-line"></div><p class="book-ending"></p><button class="primary book-next">Buka halaman berikutnya <span>♡</span></button></div>`);
+annual.setAttribute('aria-label','Buku anniversary sepuluh Januari');
+const chapters=[
+ ['Awalnya, ada kita.','10 Januari bukan cuma angka di kalender. Buat aku, itu awal cerita yang punya kamu di dalamnya. Cerita yang sampai sekarang masih ingin aku lanjutkan.','Happy anniversary, my girl. ♡'],
+ ['Yang kecil, yang berharga.','Obrolan yang nggak direncanakan. Tawa karena hal sederhana. Waktu yang kita bagi. Terima kasih sudah jadi bagian dari hari-hariku, Sinta. Aku menyimpan hal-hal kecil itu dengan sayang.','Little moments, a whole lot of love.'],
+ ['Halaman yang belum ditulis.','Aku nggak tahu semua hal yang menunggu kita. Tapi aku ingin terus belajar mendengarkanmu, menjagamu, dan membuat cerita baru sama kamu. Dari 10 Januari, sampai tanggal-tanggal yang belum kita temui.','Still you. Still us. — Allief ♡']
+];
+let chapter=0;function renderBook(){annual.querySelector('.book-page-number').textContent='BAB '+(chapter+1)+' / 3';annual.querySelector('.book-chapter').textContent=chapters[chapter][0];annual.querySelector('.book-story').textContent=chapters[chapter][1];annual.querySelector('.book-ending').textContent=chapters[chapter][2];annual.querySelector('.book-next').innerHTML=chapter===2?'Baca cerita kita lagi <span>♡</span>':'Buka halaman berikutnya <span>♡</span>'}
+annual.querySelector('.book-next').onclick=()=>{chapter=(chapter+1)%chapters.length;renderBook()};renderBook();
+function activeSeason(){return secretSeason(previewMoments[previewMode]||jakartaMoment())}
+function openSeasonalRoom(){const season=activeSeason();if(season.annual){chapter=0;renderBook();annual.showModal()}else if(season.anniversary){monthly.showModal()}else{roomIndex=0;renderRoom();room.showModal()}burst(innerWidth/2,innerHeight*.6,30)}
+const footerSecret=document.querySelector('footer .secret-trigger');
+if(footerSecret){let hits=0,resetHits;footerSecret.onclick=()=>{clearTimeout(resetHits);if(++hits===5){hits=0;openSeasonalRoom()}else resetHits=setTimeout(()=>hits=0,5000)}}
+function bindNightStar(){const star=sky.querySelectorAll('.secret-star')[5];if(star)star.onclick=()=>{star.classList.add('visited');if(activeSeason().night){sky.close();bedtime.showModal()}else sky.querySelector('.star-message').textContent=ordinaryStarWords[5]}}
+bindNightStar();setInterval(bindNightStar,1100);
+if(previewMode==='night'){if(sky.open)sky.close();bedtime.showModal()}
+if(previewMode==='anniversary'||previewMode==='january10'){if(room.open)room.close();openSeasonalRoom()}
