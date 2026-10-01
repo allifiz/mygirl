@@ -94,3 +94,88 @@ $('#hug').onclick = e => {
     showHundredHugs();
   }
 };
+
+/* Two quiet doors into Sinta's little universe. */
+const secretStyle=document.createElement('style');
+secretStyle.textContent=`
+.secret-trigger{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.name-trigger{font-style:italic;color:var(--purple);font-size:1.18em;line-height:inherit;letter-spacing:inherit;transition:filter .3s}
+.name-trigger.holding{filter:drop-shadow(0 0 14px #ab73d4)}
+.secret-world{width:min(760px,calc(100% - 24px));padding:42px 28px;text-align:center;background:radial-gradient(ellipse at top,#60368d,#211330 75%);color:#fcf2ff;border:1px solid #9973ba;overflow:auto}
+.secret-world::backdrop{background:#160b27dc;backdrop-filter:blur(12px)}
+.secret-world .close{color:#e0c5fc}.secret-world .section-label{color:#ceb0ef}
+.secret-world h2{font-size:clamp(32px,7vw,48px)}.secret-world em{color:#d8b5ff}
+.secret-world>p{line-height:1.8;color:#ddc9ea}.secret-sky{position:relative;height:260px;margin:20px 0}
+.secret-star{position:absolute;background:none;border:0;color:#f4daff;font-size:35px;min-width:48px;min-height:48px;animation:secret-twinkle 3s ease-in-out infinite}
+.secret-star.visited{color:#bc8ded}.star-message{min-height:100px;display:grid;place-items:center;font-family:'DM Serif Display',Georgia,serif;font-size:24px;line-height:1.5;padding:20px;border:1px solid #9a71b54d;border-radius:16px;background:#ffffff08}
+.secret-room{background:radial-gradient(ellipse at top,#ecd8ff,transparent 70%),#fcf8ff;color:var(--ink);width:min(590px,calc(100% - 28px))}
+.secret-room .close{color:var(--purple)}.secret-room .section-label{color:var(--purple)}.secret-room em{color:var(--purple)}.secret-room>p{color:var(--muted)}
+.room-note{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(23px,5vw,29px);line-height:1.6;padding:25px 18px;border-top:1px solid #d9c0ed;border-bottom:1px solid #d9c0ed;margin:28px 0;min-height:185px;display:grid;place-items:center}
+.room-counter{font-size:13px;color:#9570ae;letter-spacing:.08em}.secret-room .handwritten{color:var(--purple);font-size:27px}
+@keyframes secret-twinkle{0%,100%{opacity:.65;transform:scale(.9)}50%{opacity:1;transform:scale(1.12)}}
+@media(prefers-reduced-motion:reduce){.secret-star{animation:none}}
+`;
+document.head.append(secretStyle);
+function secretDialog(className,content){
+ const d=document.createElement('dialog');d.className='secret-world '+className;d.innerHTML='<button class="close" aria-label="Tutup kejutan">×</button>'+content;document.body.append(d);
+ d.querySelector('.close').onclick=()=>d.close();
+ d.addEventListener('click',e=>{if(e.target!==d)return;const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close()});
+ return d;
+}
+const sky=secretDialog('night-sky',`
+ <p class="section-label">OUR LITTLE SECRET UNIVERSE</p>
+ <h2>Ada dunia kecil,<br><em>yang isinya kamu.</em></h2>
+ <p>Kamu menemukan tempat yang nggak semua orang bisa masuk.<br>Cuma kamu, Sinta. Ketuk bintangnya, ya.</p>
+ <div class="secret-sky"></div>
+ <div class="star-message" aria-live="polite">Setiap bintang menyimpan sesuatu yang ingin aku bilang.</div>
+ <p class="handwritten">Even in a sky full of stars, I'd look for you. ♡</p>`);
+sky.setAttribute('aria-label','Langit rahasia untuk Sinta');
+const starWords=[
+ 'Kalau hariku punya bagian favorit, biasanya ada kamu di dalamnya.',
+ 'Aku suka saat cerita kecilmu berubah jadi obrolan panjang kita.',
+ 'Kamu nggak harus selalu ceria untuk tetap aku sayang.',
+ 'Ada banyak hal yang bisa bikin aku tersenyum. Tapi senyum karena kamu rasanya beda.',
+ 'Kalau boleh bikin satu permintaan malam ini: semoga kamu tahu betapa berharganya kamu buat aku.',
+ 'Semesta luas banget. Tapi aku senang jalan kita bisa ketemu.',
+ 'Bintang terakhir ini cuma mau bilang: aku pilih kamu, lagi dan lagi. 💜'
+];
+const starPlaces=[[8,20],[34,5],[68,12],[20,58],[51,42],[80,61],[48,79]];
+starWords.forEach((words,i)=>{const s=document.createElement('button');s.className='secret-star';s.textContent='✦';s.setAttribute('aria-label','Buka pesan bintang '+(i+1));s.style.left=starPlaces[i][0]+'%';s.style.top=starPlaces[i][1]+'%';s.style.animationDelay=(-i*.4)+'s';s.onclick=()=>{sky.querySelector('.star-message').textContent=words;s.classList.add('visited')};sky.querySelector('.secret-sky').append(s)});
+const oldName=document.querySelector('h1 em');
+if(oldName){
+ const name=document.createElement('button');name.className='secret-trigger name-trigger';name.textContent=oldName.textContent;name.setAttribute('aria-label','Sinta');oldName.replaceWith(name);
+ let holdTimer,startPoint;function cancelHold(){clearTimeout(holdTimer);holdTimer=null;name.classList.remove('holding')}
+ function openSky(){cancelHold();if(!sky.open){sky.showModal();burst(innerWidth/2,innerHeight*.6,35)}}
+ name.addEventListener('pointerdown',e=>{if(e.isPrimary===false||e.button!==0)return;cancelHold();startPoint={x:e.clientX,y:e.clientY};name.classList.add('holding');holdTimer=setTimeout(openSky,3000)});
+ name.addEventListener('pointermove',e=>{if(holdTimer&&startPoint&&Math.hypot(e.clientX-startPoint.x,e.clientY-startPoint.y)>15)cancelHold()});
+ ['pointerup','pointercancel','pointerleave','blur'].forEach(event=>name.addEventListener(event,cancelHold));
+ name.addEventListener('contextmenu',e=>e.preventDefault());
+ name.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!e.repeat&&!holdTimer){name.classList.add('holding');holdTimer=setTimeout(openSky,3000)}}});
+ name.addEventListener('keyup',cancelHold);
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelHold()});
+}
+const room=secretDialog('secret-room',`
+ <p class="section-label">YOU FOUND THE PART I KEPT QUIET</p>
+ <h2>Hal-hal yang<br><em>belum aku bilang.</em></h2>
+ <p>Nggak semua rasa langsung jadi kata.<br>Beberapa aku simpan di sini, buat kamu.</p>
+ <div class="room-note" aria-live="polite"></div>
+ <p class="room-counter"></p>
+ <button class="primary room-next">Ada satu lagi <span>♡</span></button>
+ <p class="handwritten">Just between us, Allief ♡ Sinta</p>`);
+room.setAttribute('aria-label','Ruang pesan rahasia Allief dan Sinta');
+const roomWords=[
+ 'Kadang aku pengin ngobrol sama kamu, padahal nggak ada topik. Aku cuma kangen kamu.',
+ 'Hal kecil darimu bisa tinggal lama di kepalaku. Cara kamu ketawa, cerita, atau sekadar manggil namaku.',
+ 'Aku nggak cuma mau ada di foto bahagiamu. Aku juga mau ada saat kamu butuh ditemani.',
+ 'Kalau aku bisa menitipkan satu perasaan lewat halaman ini, aku pengin kamu merasa: “aku disayang.”',
+ 'Kamu bukan sekadar nama di halaman ini, Sinta. Kamu alasan kenapa aku bikin semuanya dengan hati. 💜'
+];
+let roomIndex=0;
+function renderRoom(){room.querySelector('.room-note').textContent=roomWords[roomIndex];room.querySelector('.room-counter').textContent=(roomIndex+1)+' / '+roomWords.length;room.querySelector('.room-next').innerHTML=roomIndex===roomWords.length-1?'Baca dari awal <span>♡</span>':'Ada satu lagi <span>♡</span>'}
+room.querySelector('.room-next').onclick=()=>{roomIndex=(roomIndex+1)%roomWords.length;renderRoom()};renderRoom();
+const footerTitle=document.querySelector('footer > span:first-child');
+if(footerTitle){
+ const door=document.createElement('button');door.className='secret-trigger';door.innerHTML=footerTitle.innerHTML;door.setAttribute('aria-label','Allief cinta Sinta');footerTitle.textContent='';footerTitle.append(door);
+ let taps=0,tapTimer;
+ door.onclick=()=>{clearTimeout(tapTimer);taps++;if(taps===5){taps=0;roomIndex=0;renderRoom();if(!room.open)room.showModal();burst(innerWidth/2,innerHeight*.6,35)}else tapTimer=setTimeout(()=>taps=0,5000)};
+}
