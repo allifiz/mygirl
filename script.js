@@ -179,3 +179,64 @@ if(footerTitle){
  let taps=0,tapTimer;
  door.onclick=()=>{clearTimeout(tapTimer);taps++;if(taps===5){taps=0;roomIndex=0;renderRoom();if(!room.open)room.showModal();burst(innerWidth/2,innerHeight*.6,35)}else tapTimer=setTimeout(()=>taps=0,5000)};
 }
+
+/* Same secret doors, different letters when Jakarta's clock says it's time.
+   ?preview=night | anniversary | january10 | day (local preview only). */
+function jakartaMoment(date=new Date()){
+ const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Jakarta',month:'numeric',day:'numeric',hour:'numeric',hourCycle:'h23'}).formatToParts(date);
+ const values=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+ return {month:Number(values.month),day:Number(values.day),hour:Number(values.hour)};
+}
+function secretSeason(moment){
+ return {night:moment.hour>=21||moment.hour<4,anniversary:moment.day===10,annual:moment.day===10&&moment.month===1};
+}
+const previewMode=new URLSearchParams(location.search).get('preview');
+const previewMoments={night:{month:10,day:1,hour:21},anniversary:{month:10,day:10,hour:12},january10:{month:1,day:10,hour:12},day:{month:10,day:1,hour:12}};
+const ordinaryRoomWords=[...roomWords];
+const ordinaryStarWords=[...starWords];
+const roomHeading=room.querySelector('h2');
+const roomIntro=room.querySelector('h2 + p');
+const roomEyebrow=room.querySelector('.section-label');
+const normalRoomHeading=roomHeading.innerHTML,normalRoomIntro=roomIntro.innerHTML,normalRoomEyebrow=roomEyebrow.textContent;
+const nightLetter='Sinta, sebelum kamu tidur: terima kasih sudah melewati hari ini. Kalau ada yang terasa berat, semoga malam ini memberi kamu sedikit tenang. Istirahat ya, sayang. Kamu nggak harus menyelesaikan semuanya malam ini. Aku sayang kamu. Selamat tidur 💜';
+let currentSeason='';
+function refreshTimedSecrets(){
+ const season=secretSeason(previewMoments[previewMode]||jakartaMoment());
+ const key=JSON.stringify(season);
+ if(key===currentSeason)return;
+ currentSeason=key;
+ starWords.splice(0,starWords.length,...ordinaryStarWords);
+ if(season.night)starWords[5]=nightLetter;
+ const stars=sky.querySelectorAll('.secret-star');
+ stars.forEach((star,i)=>{star.onclick=()=>{sky.querySelector('.star-message').textContent=starWords[i];star.classList.add('visited')}});
+ sky.querySelector('.star-message').textContent='Setiap bintang menyimpan sesuatu yang ingin aku bilang.';
+ if(season.anniversary){
+  roomEyebrow.textContent=season.annual?'JANUARY 10 · OUR LITTLE DAY':'THE TENTH · OUR LITTLE DAY';
+  roomHeading.innerHTML=season.annual?'10 Januari.<br><em>Hari kita.</em>':'Tanggal sepuluh.<br><em>Aku pilih kamu lagi.</em>';
+  roomIntro.innerHTML='Ada tanggal yang buat orang lain biasa aja.<br>Tapi buat aku, tanggal ini punya kamu di dalamnya.';
+  roomWords.splice(0,roomWords.length,
+   season.annual?'Happy anniversary, Sinta Rahmawati 💜 10 Januari selalu jadi tanggal yang terasa lebih hangat, karena di situ ada awal cerita kita.':'Happy tanggal sepuluh, sayang 💜 Hari kecil kita datang lagi. Aku pengin berhenti sebentar dan bilang: aku senang punya kamu.',
+   'Aku nggak ingin cuma ingat tanggal kita mulai. Aku juga ingin terus ingat alasan kenapa aku mau berjalan sama kamu.',
+   'Terima kasih untuk obrolan, tawa, dan hari-hari kecil yang kita bagi. Hal-hal itu mungkin kelihatan sederhana, tapi berharga buat aku.',
+   'Semoga kita terus belajar saling dengar, saling jaga, dan tetap memilih satu sama lain, bahkan saat hari nggak selalu mudah.',
+   'Dari 10 Januari, sampai tanggal-tanggal yang belum kita temui: aku masih pengin bikin cerita sama kamu. — Allief ♡');
+ }else{
+  roomEyebrow.textContent=normalRoomEyebrow;roomHeading.innerHTML=normalRoomHeading;roomIntro.innerHTML=normalRoomIntro;
+  roomWords.splice(0,roomWords.length,...ordinaryRoomWords);
+ }
+ roomIndex=0;renderRoom();
+}
+refreshTimedSecrets();
+setInterval(refreshTimedSecrets,1000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshTimedSecrets()});
+if(previewMoments[previewMode]){
+ const previewBadge=document.createElement('div');
+ previewBadge.textContent='PREVIEW: '+previewMode+' · hapus ?preview untuk waktu asli';
+ previewBadge.setAttribute('role','status');
+ previewBadge.style.cssText='position:fixed;left:12px;bottom:12px;z-index:50;background:#352047;color:white;padding:10px 14px;border-radius:12px;font:12px sans-serif;max-width:calc(100vw - 24px)';
+ document.body.append(previewBadge);
+ if(previewMode==='night'){
+  sky.showModal();
+  sky.querySelector('.star-message').textContent=nightLetter;
+ }else if(previewMode==='anniversary'||previewMode==='january10')room.showModal();
+}
